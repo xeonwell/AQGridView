@@ -1214,6 +1214,8 @@ NSString * const AQGridViewSelectionDidChangeNotification = @"AQGridViewSelectio
 #pragma mark -
 #pragma mark Touch Events
 
+typedef UIView* (*getIvarsFunction)(id, SEL, CGPoint, UIEvent*);
+
 - (UIView *) _basicHitTest: (CGPoint) point withEvent: (UIEvent *) event
 {
 	// STUPID STUPID RAT CREATURES
@@ -1224,8 +1226,8 @@ NSString * const AQGridViewSelectionDidChangeNotification = @"AQGridViewSelectio
 	//  being a private API.
 	// Instead, we have to manufacture a call to our super-super class here, grr
 	Method method = class_getInstanceMethod( [UIView class], @selector(hitTest:withEvent:) );
-	IMP imp = method_getImplementation( method );
-	return ( (UIView *)imp(self, @selector(hitTest:withEvent:), point, event) ); // -[UIView hitTest:withEvent:]
+	getIvarsFunction imp = (getIvarsFunction)method_getImplementation( method );
+	return imp(self, @selector(hitTest:withEvent:), point, event); // -[UIView hitTest:withEvent:]
 }
 
 - (BOOL) _canSelectItemContainingHitView: (UIView *) hitView
